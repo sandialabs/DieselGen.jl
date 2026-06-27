@@ -1,8 +1,8 @@
 # DieselGen.jl
 
-[![CI](https://github.com/kevmoor/DieselGen.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/kevmoor/DieselGen.jl/actions/workflows/CI.yml)
-[![Docs](https://github.com/kevmoor/DieselGen.jl/actions/workflows/Docs.yml/badge.svg)](https://github.com/kevmoor/DieselGen.jl/actions/workflows/Docs.yml)
-[![Coverage](https://codecov.io/gh/kevmoor/DieselGen.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/kevmoor/DieselGen.jl)
+[![CI](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml)
+[![Docs](https://github.com/sandialabs/DieselGen.jl/actions/workflows/Docs.yml/badge.svg?branch=master)](https://github.com/sandialabs/DieselGen.jl/actions/workflows/Docs.yml)
+[![Coverage](https://codecov.io/gh/sandialabs/DieselGen.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/sandialabs/DieselGen.jl)
 
 Standalone diesel engine performance and sizing model translated from FASTSim
 diesel fuel-converter logic. Designed for fast, differentiable simulations with
@@ -12,7 +12,7 @@ diesel fuel-converter logic. Designed for fast, differentiable simulations with
 
 ```julia
 using Pkg
-Pkg.add(url = "https://github.com/kevmoor/DieselGen.jl")
+Pkg.add(url = "https://github.com/sandialabs/DieselGen.jl")
 ```
 
 For local development from a checkout:
