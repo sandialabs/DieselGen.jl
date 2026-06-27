@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Diesel performance map · DieselGen.jl</title><meta name="title" content="Diesel performance map · DieselGen.jl"/><meta property="og:title" content="Diesel performance map · DieselGen.jl"/><meta property="twitter:title" content="Diesel performance map · DieselGen.jl"/><meta name="description" content="Documentation for DieselGen.jl."/><meta property="og:description" content="Documentation for DieselGen.jl."/><meta property="twitter:description" content="Documentation for DieselGen.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DieselGen.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../quickstart/">Quick Start</a></li><li><a class="tocitem" href="../../theory/">Theory</a></li><li><a class="tocitem" href="../../api/">API</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/">Examples</a></li><li class="is-active"><a class="tocitem" href>Diesel performance map</a></li><li><a class="tocitem" href="../unsteady_usage/">Unsteady diesel operation</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Diesel performance map</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Diesel performance map</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/sandialabs/DieselGen.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Diesel-performance-map"><a class="docs-heading-anchor" href="#Diesel-performance-map">Diesel performance map</a><a id="Diesel-performance-map-1"></a><a class="docs-heading-anchor-permalink" href="#Diesel-performance-map" title="Permalink"></a></h1><p>This example builds a simple performance map for a diesel engine design and plots the fuel mass flow as a 3D surface over RPM and torque.</p><pre><code class="language-julia hljs">using DieselGen
+using Plots
+
+gr()
+default(
+    background_color = :transparent,
+    background_color_inside = :transparent,
+    background_color_subplot = :transparent,
+)
+
+fig_dir = joinpath(@__DIR__, &quot;figs&quot;)
+mkpath(fig_dir)
+
+design = EngineDesign(
+    max_power_kw = 1.0,
+    idle_power_kw = 0.013,
+    ramp_time_s = 6.1,
+    base_mass_kg = 61.3,
+    power_density_kw_per_kg = 2.13,
+    comp_mass_multiplier = 1.4,
+    eff_map = default_diesel_map(),
+    fuel = default_diesel_fuel(),
+)
+
+rpms = 1000:250:3000
+torques = 0:0.2:4.0
+
+pmax = design.max_power_kw
+
+fuel_map = [
+    fuel_mass_flow_kg_s(
+        design,
+        fuel_power_kw(design, min(power_kw(r, t), pmax)),
+    ) for t in torques, r in rpms
+]</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">21×9 Matrix{Float64}:
+ 0.0         0.0         0.0         …  0.0         0.0         0.0
+ 3.15408e-6  3.7245e-6   4.23512e-6     5.68788e-6  5.94219e-6  6.23953e-6
+ 5.08897e-6  5.68788e-6  6.23953e-6     8.61286e-6  9.34926e-6  1.00665e-5
+ 6.23953e-6  7.19117e-6  8.00512e-6     1.22782e-5  1.34215e-5  1.45505e-5
+ 7.47624e-6  8.61286e-6  1.00665e-5     1.61118e-5  1.77671e-5  1.94306e-5
+ 8.61286e-6  1.04182e-5  1.22782e-5  …  2.02655e-5  2.23618e-5  2.44713e-5
+ 1.00665e-5  1.22782e-5  1.45505e-5     2.44713e-5  2.70203e-5  2.95886e-5
+ 1.1508e-5   1.41757e-5  1.69384e-5     2.87303e-5  3.17686e-5  3.51297e-5
+ 1.3042e-5   1.61118e-5  1.94306e-5     3.31979e-5  3.70919e-5  4.11104e-5
+ 1.45505e-5  1.81822e-5  2.19415e-5     3.80846e-5  4.26506e-5  4.73847e-5
+ ⋮                                   ⋱                          
+ 1.94306e-5  2.44713e-5  2.95886e-5     5.37705e-5  6.01507e-5  6.67511e-5
+ 2.11024e-5  2.65941e-5  3.22432e-5     5.90724e-5  6.61924e-5  7.35808e-5
+ 2.27827e-5  2.87303e-5  3.51297e-5     6.45258e-5  7.2427e-5   8.06467e-5
+ 2.44713e-5  3.08801e-5  3.80846e-5  …  7.01374e-5  7.88568e-5  8.79679e-5
+ 2.61685e-5  3.31979e-5  4.11104e-5     7.59086e-5  8.54983e-5  9.49062e-5
+ 2.78742e-5  3.56174e-5  4.42095e-5     8.18488e-5  9.2362e-5   9.49062e-5
+ 2.95886e-5  3.80846e-5  4.73847e-5     8.79679e-5  9.49062e-5  9.49062e-5
+ 3.13117e-5  4.0601e-5   5.06388e-5     9.4274e-5   9.49062e-5  9.49062e-5
+ 3.31979e-5  4.31681e-5  5.37705e-5  …  9.49062e-5  9.49062e-5  9.49062e-5</code></pre><p>Note: efficiency depends only on power fraction, so contours follow constant power.</p><pre><code class="language-julia hljs">fuel_surface = surface(
+    rpms,
+    torques,
+    fuel_map .* 1e3;
+    xlabel = &quot;RPM&quot;,
+    ylabel = &quot;Torque (N*m)&quot;,
+    zlabel = &quot;Fuel mass flow (g/s)&quot;,
+    title = &quot;Diesel fuel flow map&quot;,
+)
+display(fuel_surface)
+savefig(fuel_surface, joinpath(fig_dir, &quot;perf_map_fuel_flow.pdf&quot;))
+
+eff_map = [
+    efficiency_at_power(design, min(power_kw(r, t), pmax)) for t in torques, r in rpms
+]
+
+eff_surface = surface(
+    rpms,
+    torques,
+    eff_map;
+    xlabel = &quot;RPM&quot;,
+    ylabel = &quot;Torque (N*m)&quot;,
+    zlabel = &quot;Efficiency&quot;,
+    title = &quot;Diesel efficiency map&quot;,
+)
+display(eff_surface)
+savefig(eff_surface, joinpath(fig_dir, &quot;perf_map_efficiency.pdf&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;/home/runner/work/DieselGen.jl/DieselGen.jl/docs/build/generated/figs/perf_map_efficiency.pdf&quot;</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../examples/">« Examples</a><a class="docs-footer-nextpage" href="../unsteady_usage/">Unsteady diesel operation »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 27 June 2026 15:30">Saturday 27 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

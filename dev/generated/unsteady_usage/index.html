@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Unsteady diesel operation · DieselGen.jl</title><meta name="title" content="Unsteady diesel operation · DieselGen.jl"/><meta property="og:title" content="Unsteady diesel operation · DieselGen.jl"/><meta property="twitter:title" content="Unsteady diesel operation · DieselGen.jl"/><meta name="description" content="Documentation for DieselGen.jl."/><meta property="og:description" content="Documentation for DieselGen.jl."/><meta property="twitter:description" content="Documentation for DieselGen.jl."/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">DieselGen.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../quickstart/">Quick Start</a></li><li><a class="tocitem" href="../../theory/">Theory</a></li><li><a class="tocitem" href="../../api/">API</a></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../../examples/">Examples</a></li><li><a class="tocitem" href="../perf_map/">Diesel performance map</a></li><li class="is-active"><a class="tocitem" href>Unsteady diesel operation</a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>Unsteady diesel operation</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Unsteady diesel operation</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/sandialabs/DieselGen.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Unsteady-diesel-operation"><a class="docs-heading-anchor" href="#Unsteady-diesel-operation">Unsteady diesel operation</a><a id="Unsteady-diesel-operation-1"></a><a class="docs-heading-anchor-permalink" href="#Unsteady-diesel-operation" title="Permalink"></a></h1><p>This example simulates time-varying RPM and torque and shows the resulting power and fuel flow.</p><pre><code class="language-julia hljs">using DieselGen
+using Plots
+
+gr()
+default(
+    background_color = :transparent,
+    background_color_inside = :transparent,
+    background_color_subplot = :transparent,
+)
+
+fig_dir = joinpath(@__DIR__, &quot;figs&quot;)
+mkpath(fig_dir)
+
+design = EngineDesign(
+    max_power_kw = 1.0,
+    idle_power_kw = 0.013,
+    ramp_time_s = 6.1,
+    base_mass_kg = 61.3,
+    power_density_kw_per_kg = 2.13,
+    comp_mass_multiplier = 1.4,
+    eff_map = default_diesel_map(),
+    fuel = default_diesel_fuel(),
+)
+
+t = 0.0:0.5:60.0
+dt = fill(step(t), length(t))
+
+rpms = 1200 .+ 600 .* sin.(2 * pi .* t ./ 30)
+torques = 3.0 .+ 2.0 .* sin.(2 * pi .* t ./ 10)
+
+rpms = max.(rpms, 800)
+torques = clamp.(torques, 0, 6.0)
+
+result = simulate_engine(rpms, torques, dt, design)
+req_power = power_kw.(rpms, torques)
+
+p1 = plot(
+    t,
+    req_power;
+    label = &quot;Requested power (kW)&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Power (kW)&quot;,
+    title = &quot;Unsteady power demand&quot;,
+)
+plot!(p1, t, result.power_out_kw; label = &quot;Delivered power (kW)&quot;)
+
+p2 = plot(
+    t,
+    result.fuel_mass_flow_kg_s .* 1e3;
+    label = &quot;Fuel mass flow (g/s)&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Fuel (g/s)&quot;,
+    title = &quot;Fuel flow response&quot;,
+)
+
+p_eff = plot(
+    t,
+    result.efficiency;
+    label = &quot;Efficiency&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Efficiency&quot;,
+    title = &quot;Efficiency response&quot;,
+)
+
+fig_unsteady = plot(p1, p2, p_eff; layout = (3, 1), size = (800, 800))
+display(fig_unsteady)
+savefig(fig_unsteady, joinpath(fig_dir, &quot;unsteady_response.pdf&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;/home/runner/work/DieselGen.jl/DieselGen.jl/docs/build/generated/figs/unsteady_response.pdf&quot;</code></pre><p>A second run with fast ramps that exceed the engine ramp limit.</p><pre><code class="language-julia hljs">t_fast = 0.0:0.2:30.0
+dt_fast = fill(step(t_fast), length(t_fast))
+rpms_fast = 1000 .+ 900 .* sin.(2 * pi .* t_fast ./ 3)
+torques_fast = 3.5 .+ 3.0 .* sin.(2 * pi .* t_fast ./ 1.2)
+rpms_fast = max.(rpms_fast, 800)
+torques_fast = clamp.(torques_fast, 0, 8.0)
+
+result_fast = simulate_engine(rpms_fast, torques_fast, dt_fast, design)
+req_power_fast = power_kw.(rpms_fast, torques_fast)
+
+p3 = plot(
+    t_fast,
+    req_power_fast;
+    label = &quot;Requested power (kW)&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Power (kW)&quot;,
+    title = &quot;Fast ramps vs engine limit&quot;,
+)
+plot!(p3, t_fast, result_fast.power_out_kw; label = &quot;Delivered power (kW)&quot;)
+
+p4 = plot(
+    t_fast,
+    result_fast.fuel_mass_flow_kg_s .* 1e3;
+    label = &quot;Fuel mass flow (g/s)&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Fuel (g/s)&quot;,
+    title = &quot;Fuel flow under fast ramps&quot;,
+)
+
+p5 = plot(
+    t_fast,
+    result_fast.efficiency;
+    label = &quot;Efficiency&quot;,
+    xlabel = &quot;Time (s)&quot;,
+    ylabel = &quot;Efficiency&quot;,
+    title = &quot;Efficiency under fast ramps&quot;,
+)
+
+fig_fast_ramps = plot(p3, p4, p5; layout = (3, 1), size = (800, 800))
+display(fig_fast_ramps)
+savefig(fig_fast_ramps, joinpath(fig_dir, &quot;unsteady_fast_ramps.pdf&quot;))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;/home/runner/work/DieselGen.jl/DieselGen.jl/docs/build/generated/figs/unsteady_fast_ramps.pdf&quot;</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../perf_map/">« Diesel performance map</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 27 June 2026 15:30">Saturday 27 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
