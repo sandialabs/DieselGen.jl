@@ -1,8 +1,10 @@
 # DieselGen.jl
 
-[![CI](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml)
-[![Docs](https://github.com/sandialabs/DieselGen.jl/actions/workflows/Docs.yml/badge.svg?branch=master)](https://github.com/sandialabs/DieselGen.jl/actions/workflows/Docs.yml)
+[![Tests](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml/badge.svg?branch=master)](https://github.com/sandialabs/DieselGen.jl/actions/workflows/CI.yml)
+[![Docs](https://github.com/sandialabs/DieselGen.jl/actions/workflows/Docs.yml/badge.svg?branch=master)](https://sandialabs.github.io/DieselGen.jl/dev/)
 [![Coverage](https://codecov.io/gh/sandialabs/DieselGen.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/sandialabs/DieselGen.jl)
+
+Documentation is hosted at [sandialabs.github.io/DieselGen.jl/dev/](https://sandialabs.github.io/DieselGen.jl/dev/).
 
 Standalone diesel engine performance and sizing model translated from FASTSim
 diesel fuel-converter logic. Designed for fast, differentiable simulations with
